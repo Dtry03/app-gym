@@ -36,22 +36,10 @@ class GymClass extends Model{
         'capacity',
         'id_categories',
         'id_instructor',
-        'day_of_week',
-        'tenant_id',  
+        'day_of_week',  
     ];
     
     
-    protected static function booted(): void
-    {
-        static::addGlobalScope(new TenantScope);
-
-        static::creating(function ($gymClass) {
-  
-            if (is_null($gymClass->tenant_id) && Auth::check() && Auth::user()->tenant_id) {
-                $gymClass->tenant_id = Auth::user()->tenant_id;
-            }
-        });
-    }
 
     
     public function category(): BelongsTo{

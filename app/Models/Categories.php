@@ -25,29 +25,14 @@ class Categories extends Model
         'name',
         'icon', 
         'max_user_signups_per_period',
-        'tenant_id',
+	
+       
     ];
 
-        protected static function booted(): void
-    {
-        static::addGlobalScope(new TenantScope);
+     
 
-        static::creating(function ($category) {
-          
-            if (is_null($category->tenant_id) && Auth::check() && Auth::user()->tenant_id) {
-                $category->tenant_id = Auth::user()->tenant_id;
-            }
-
-        });
-    }
-
-    public function tenant(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class, 'tenant_id');
-    }
-
-    // public function gymClasses()
-    // {
-    //     return $this->hasMany(GymClass::class, 'id_categoria');
-    // }
+     public function gymClasses()
+     {
+         return $this->hasMany(GymClass::class, 'id_categories');
+     }
 }

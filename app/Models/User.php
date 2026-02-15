@@ -32,7 +32,6 @@ class User extends Authenticatable
         'role',
         'last_login_at',
         'remember_token',
-        'tenant_id'
     ];
 
     /**
@@ -58,20 +57,11 @@ class User extends Authenticatable
         ];
     }
 
-     protected static function booted(): void
-    {
-       
-        static::creating(function ($user) {
+ 
 
-            if (is_null($user->tenant_id) && Auth::check() && Auth::user()->tenant_id) {
-                $user->tenant_id = Auth::user()->tenant_id;
-            }
-
-        });
-    }
-
-    public function tenant(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class, 'tenant_id');
-    }
+  
+    public function signups()
+{
+    return $this->hasMany(Signup::class, 'id_user');
+}
 }
