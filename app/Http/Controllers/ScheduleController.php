@@ -54,6 +54,8 @@ class ScheduleController extends Controller
         // Considera la zona horaria si es relevante para tu aplicación
         // $now = Carbon::now(config('app.timezone'));
         $effectiveDate = ($now->hour >= 21) ? $now->copy()->addDay() : $now; // Usar copy() para no modificar $now
+        $effectiveDateStart=$effectiveDate->copy()->startOfDay();
+        $effectiveDateEnd= $effectiveDate->copy()->endOfDay();
 
         // Obtener el día de la semana ISO (1=Lunes, 7=Domingo) para la fecha efectiva
         $effectiveDayOfWeek = $effectiveDate->dayOfWeekIso;
@@ -71,9 +73,11 @@ class ScheduleController extends Controller
 
         // Obtener los IDs de las clases a las que el usuario actual YA está apuntado
         // Solo si el usuario está logueado
-        $userSignupIds = [];
+        $userSignupIds = collect();
         if (Auth::check()) {
             $userSignupIds = Signup::where('id_user', Auth::id())
+                                   ->whereBetween('session_start', [$effectiveDateStart, $effectiveDateEnd])
+                                   ->whereNull('cancelled_at')
                                    ->pluck('id_class') // Obtiene solo la columna id_class
                                    ->flip(); // Convierte los valores en claves para búsqueda rápida (ej: [class_id => 0])
         }

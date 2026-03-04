@@ -34,6 +34,13 @@ class Signup extends Model
     protected $fillable = [
         'id_user',
         'id_class',
+        'session_start',
+        'cancelled_at',
+    ];
+
+    protected $casts = [
+                'session_start'=> 'datetime',
+                'cancelled_at' => 'datetime',
     ];
 
     /**

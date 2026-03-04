@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;   // Para registrar errores
 use Illuminate\Database\QueryException; // Para errores de BBDD
 use Exception; // Para capturar excepciones generales
 use Illuminate\Auth\Access\AuthorizationException; // Para errores de autorización
-
+use Carbon\Carbon;
 class SignupController extends Controller
 {
     /**
@@ -23,11 +23,16 @@ class SignupController extends Controller
      */
     public function store(Request $request, GymClass $gymClass)
     {
+                $now= Carbon::now();
+                $effectiveDate = ($now->hour >=21) ? $now->copy()->addDay() : $now->copy();
+                $sessionStart= Carbon::parse($effectiveDate->toDateString().' '.$gymClass->start_time);
                 $user = Auth::user();
 
         // --- Comprobaciones ---
         $alreadySignedUp = Signup::where('id_user', $user->id)
                                 ->where('id_class', $gymClass->id)
+                                ->whereNull('cancelled_at')
+                                ->where('session_start', $sessionStart)
                                 ->exists();
 
         if ($alreadySignedUp) {
@@ -35,7 +40,11 @@ class SignupController extends Controller
             return redirect()->route('schedule.today')->with('error', 'Ya estás apuntado a esta clase.');
         }
 
-        $currentSignupsCount = Signup::where('id_class', $gymClass->id)->count();
+        $currentSignupsCount = Signup::where('id_class', $gymClass->id)
+                                                                        ->where('session_start', $sessionStart)
+                                                                        ->whereNull('cancelled_at')
+                                                                        ->count();
+
         if ($currentSignupsCount >= $gymClass->capacity) {
              // --- Redirección corregida ---
             return redirect()->route('schedule.today')->with('error', 'Lo sentimos, la clase está completa.');
