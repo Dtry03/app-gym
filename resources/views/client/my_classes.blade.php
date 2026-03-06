@@ -64,9 +64,10 @@
                                         <form action="{{ route('inscripciones.destroy', $signup->id) }}" method="POST" onsubmit="return confirm('¿Seguro que quieres anular tu inscripción a esta clase?');">
                                             @csrf
                                             @method('DELETE')
+                                  
                                             <button type="submit" class="w-full md:w-auto inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 disabled:opacity-50"
                                                     {{-- Deshabilitar si la clase ya pasó (lógica simple) --}}
-                                                    {{-- @if(\Carbon\Carbon::parse($class->start_time)->isPast()) disabled @endif --}} >
+                                                 @if(\Carbon\Carbon::parse($class->start_time)->isPast()) disabled @endif >
                                                 Anular Inscripción
                                             </button>
                                         </form>

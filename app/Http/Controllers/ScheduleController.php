@@ -76,8 +76,6 @@ class ScheduleController extends Controller
         $userSignupIds = collect();
         if (Auth::check()) {
             $userSignupIds = Signup::where('id_user', Auth::id())
-                                   ->whereBetween('session_start', [$effectiveDateStart, $effectiveDateEnd])
-                                   ->whereNull('cancelled_at')
                                    ->pluck('id_class') // Obtiene solo la columna id_class
                                    ->flip(); // Convierte los valores en claves para búsqueda rápida (ej: [class_id => 0])
         }

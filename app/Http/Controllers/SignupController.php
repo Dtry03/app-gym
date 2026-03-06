@@ -31,8 +31,6 @@ class SignupController extends Controller
         // --- Comprobaciones ---
         $alreadySignedUp = Signup::where('id_user', $user->id)
                                 ->where('id_class', $gymClass->id)
-                                ->whereNull('cancelled_at')
-                                ->where('session_start', $sessionStart)
                                 ->exists();
 
         if ($alreadySignedUp) {
@@ -40,10 +38,7 @@ class SignupController extends Controller
             return redirect()->route('schedule.today')->with('error', 'Ya estás apuntado a esta clase.');
         }
 
-        $currentSignupsCount = Signup::where('id_class', $gymClass->id)
-                                                                        ->where('session_start', $sessionStart)
-                                                                        ->whereNull('cancelled_at')
-                                                                        ->count();
+        $currentSignupsCount = Signup::where('id_class', $gymClass->id)->count();
 
         if ($currentSignupsCount >= $gymClass->capacity) {
              // --- Redirección corregida ---
@@ -98,19 +93,40 @@ class SignupController extends Controller
     {
         try {
 
-            $redirectRoute = 'client.classes'; 
-            if (Auth::check() && Auth::user()->role === 'admin') {
-        
-                $redirectRoute = 'admin.reports.daily_signups';
+            $user= Auth::user();
+
+            if($user->role !== 'admin' && $signup->id_user !== $user->id){
+                throw new AuthorizationException('no tienes permiso para anular esta inscripción.');
             }
 
-            // Intentar eliminar la categoría de la base de datos
+            $gymClass = $signup->gymClass;
+
+            $now= Carbon::now();
+            $format = strlen($gymClass->start_time) === 5 ? 'H:i' : 'H:i:s';
+            $classTime= Carbon::createFromFormat('H:i', $gymClass->start_time);
+
+            $classStartToday= Carbon::today()->setTime(
+                    $classTime->hour,
+                    $classTime->minute,
+                    0
+            );
+
+            if($now->isoWeekday()== (int)$gymClass->day_of_week && $now->gte($classStartToday)){
+                return redirect()->route('client.classes')->with('error', 'No puede cancelar la clase pasado el plazo de inscripción');
+            }
+            
+            if($now->isoWeekday() > (int)$gymClass->day_of_week){
+                return redirect()->route('client.classes')->with('error', 'No puede cancelar la clase pasado el plazo de inscripción');
+            }
+            
+
+
+         
+
             $signup->delete();
 
+            return redirect()->route('client.classes')->with('success', 'Inscricpción anulada correctamente');
 
-            // Redirigir a la lista con mensaje de éxito
-            return redirect()->route($redirectRoute)
-                             ->with('success', 'Inscripción anulada correctamente.');
 
         
         } catch (AuthorizationException $e) {
