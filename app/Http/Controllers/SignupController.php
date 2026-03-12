@@ -102,22 +102,28 @@ class SignupController extends Controller
             $gymClass = $signup->gymClass;
 
             $now= Carbon::now();
-            $format = strlen($gymClass->start_time) === 5 ? 'H:i' : 'H:i:s';
-            $classTime= Carbon::createFromFormat('H:i', $gymClass->start_time);
 
-            $classStartToday= Carbon::today()->setTime(
-                    $classTime->hour,
-                    $classTime->minute,
-                    0
-            );
+            $classStart = Carbon::now()->startOfWeek()->addDays($gymClass->day_of_week -1)->setTimeFromTimeString($gymClass->start_time);
 
-            if($now->isoWeekday()== (int)$gymClass->day_of_week && $now->gte($classStartToday)){
+            if($now->greaterThanOrEqualTo($classStart)){
                 return redirect()->route('client.classes')->with('error', 'No puede cancelar la clase pasado el plazo de inscripción');
             }
+            // $format = strlen($gymClass->start_time) === 5 ? 'H:i' : 'H:i:s';
+            // $classTime= Carbon::createFromFormat('H:i', $gymClass->start_time);
+
+            // $classStartToday= Carbon::today()->setTime(
+            //         $classTime->hour,
+            //         $classTime->minute,
+            //         0
+            // );
+
+            // if($now->isoWeekday()== (int)$gymClass->day_of_week && $now->gte($classStartToday)){
+            //     return redirect()->route('client.classes')->with('error', 'No puede cancelar la clase pasado el plazo de inscripción');
+            // }
             
-            if($now->isoWeekday() > (int)$gymClass->day_of_week){
-                return redirect()->route('client.classes')->with('error', 'No puede cancelar la clase pasado el plazo de inscripción');
-            }
+            // if($now->isoWeekday() > (int)$gymClass->day_of_week){
+            //     return redirect()->route('client.classes')->with('error', 'No puede cancelar la clase pasado el plazo de inscripción');
+            // }
             
 
 
