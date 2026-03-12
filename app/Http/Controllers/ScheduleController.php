@@ -49,11 +49,11 @@ class ScheduleController extends Controller
      */
     public function todayClasses()
     {
-        // Determinar la fecha efectiva (hoy o mañana después de las 21:00)
+        // Determinar la fecha efectiva (hoy o mañana después de las 22:00)
         $now = Carbon::now();
         // Considera la zona horaria si es relevante para tu aplicación
         // $now = Carbon::now(config('app.timezone'));
-        $effectiveDate = ($now->hour >= 21) ? $now->copy()->addDay() : $now; // Usar copy() para no modificar $now
+        $effectiveDate = ($now->hour >= 22) ? $now->copy()->addDay() : $now; // Usar copy() para no modificar $now
         $effectiveDateStart=$effectiveDate->copy()->startOfDay();
         $effectiveDateEnd= $effectiveDate->copy()->endOfDay();
 
