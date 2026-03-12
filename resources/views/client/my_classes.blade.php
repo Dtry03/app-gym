@@ -46,7 +46,8 @@
                                         {{-- Mostramos el día de la semana --}}
                                         @php
                                             $dayNames = [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
-                                        @endphp
+                                            $classStart= now()->startOfWeek()->addDays($class->day_of_week -1)->setTimeFromTimeString($class->start_time);
+                                            @endphp
                                         <p class="text-sm text-gray-400  font-medium">
                                             {{ $dayNames[$class->day_of_week] ?? 'Día N/D' }}
                                         </p>
@@ -67,7 +68,7 @@
                                   
                                             <button type="submit" class="w-full md:w-auto inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150 disabled:opacity-50"
                                                     {{-- Deshabilitar si la clase ya pasó (lógica simple) --}}
-                                                 @if(\Carbon\Carbon::parse($class->start_time)->isPast()) disabled @endif >
+                                                 @if(now()->gte($classStart)) disabled @endif >
                                                 Anular Inscripción
                                             </button>
                                         </form>
